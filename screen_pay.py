@@ -55,7 +55,7 @@ class ScreenPay:
         if bandera:
             mb.showinfo(
                 "Informacion",
-                f"Ya existe un cliente con ese correoagregar y su id es:{respuesta}",
+                f"Ya existe un cliente con ese correo y su id es:{respuesta}",
             )
         else:
             mb.showinfo(
@@ -142,7 +142,7 @@ class ScreenPay:
 
     def listado_plataformas(self):
         self.pagina4 = ttk.Frame(self.cuaderno)
-        self.cuaderno.add(self.pagina4, text="Listado Plataformas")
+        self.cuaderno.add(self.pagina4, text="Plataformas")
         self.labelframe4 = ttk.LabelFrame(self.pagina4, text="Plataformas")
         self.labelframe4.grid(column=0, row=0, padx=5, pady=10)
         self.boton1 = ttk.Button(
