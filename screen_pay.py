@@ -46,6 +46,7 @@ def create_table(conn):
                 id_servicio INTEGER,
                 usuario TEXT,
                 contraseña TEXT,
+                pantallas_compradas INTEGER,
                 fecha_renovacion DATE,
                 suspendida INTEGER,
                 FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
@@ -64,7 +65,7 @@ class ScreenPay:
         self.cuaderno = ttk.Notebook(self.ventana)
 
         self.agregar_cliente()
-        self.consultar_cliente()
+        self.modifica_cliente()
         self.listado_clientes()
 
         self.cuaderno.grid(column=0, row=0, padx=10, pady=10)
@@ -112,45 +113,53 @@ class ScreenPay:
         self.nombreagregar.set("")
         self.correoagregar.set("")
 
-    def consultar_cliente(self):
+    def modifica_cliente(self):
         self.pagina2 = ttk.Frame(self.cuaderno)
-        self.cuaderno.add(self.pagina2, text="Consulta por id")
+        self.cuaderno.add(self.pagina2, text="Modifica Cliente")
         self.labelframe2 = ttk.LabelFrame(self.pagina2, text="Cliente")
         self.labelframe2.grid(column=0, row=0, padx=5, pady=10)
         self.label1 = ttk.Label(self.labelframe2, text="ID:")
         self.label1.grid(column=0, row=0, padx=4, pady=4)
-        self.id = tk.StringVar()
-        self.entryid = ttk.Entry(self.labelframe2, textvariable=self.id)
-        self.entryid.grid(column=1, row=0, padx=4, pady=4)
+        self.idmod = tk.StringVar()
+        self.entryidmod = ttk.Entry(self.labelframe2, textvariable=self.idmod)
+        self.entryidmod.grid(column=1, row=0, padx=4, pady=4)
         self.label2 = ttk.Label(self.labelframe2, text="Nombre:")
         self.label2.grid(column=0, row=1, padx=4, pady=4)
-        self.nombre = tk.StringVar()
-        self.entrynombre = ttk.Entry(
-            self.labelframe2, textvariable=self.nombre, state="readonly"
-        )
-        self.entrynombre.grid(column=1, row=1, padx=4, pady=4)
+        self.nombremod = tk.StringVar()
+        self.entrynombremod = ttk.Entry(self.labelframe2, textvariable=self.nombremod)
+        self.entrynombremod.grid(column=1, row=1, padx=4, pady=4)
         self.label3 = ttk.Label(self.labelframe2, text="Correo:")
         self.label3.grid(column=0, row=2, padx=4, pady=4)
-        self.correo = tk.StringVar()
-        self.entrycorreo = ttk.Entry(
-            self.labelframe2, textvariable=self.correo, state="readonly"
-        )
-        self.entrycorreo.grid(column=1, row=2, padx=4, pady=4)
+        self.correomod = tk.StringVar()
+        self.entrycorreomod = ttk.Entry(self.labelframe2, textvariable=self.correomod)
+        self.entrycorreomod.grid(column=1, row=2, padx=4, pady=4)
         self.boton1 = ttk.Button(
             self.labelframe2, text="Consultar", command=self.consultar
         )
         self.boton1.grid(column=1, row=3, padx=4, pady=4)
+        self.boton1 = ttk.Button(
+            self.labelframe2, text="Modificar", command=self.modifica
+        )
+        self.boton1.grid(column=1, row=4, padx=4, pady=4)
 
     def consultar(self):
-        datos = (self.id.get(),)
+        datos = (self.idmod.get(),)
         respuesta = self.base.consulta(datos)
         if len(respuesta) > 0:
-            self.nombre.set(respuesta[0][0])
-            self.correo.set(respuesta[0][1])
+            self.nombremod.set(respuesta[0][0])
+            self.correomod.set(respuesta[0][1])
         else:
-            self.correo.set("")
-            self.nombre.set("")
+            self.correomod.set("")
+            self.nombremod.set("")
             mb.showinfo("Información", "No existe un cliente con dicha id")
+
+    def modifica(self):
+        datos = (self.nombremod.get(), self.correomod.get(), self.idmod.get())
+        respuesta = self.base.modifica_cliente(datos)
+        if respuesta == 1:
+            mb.showinfo("Información", f"Se modificó al cliente con id: datos[2]")
+        else:
+            mb.showinfo("Información", f"No existe un Cliente con la id: datos[2]")
 
     def listado_clientes(self):
         self.pagina3 = ttk.Frame(self.cuaderno)
