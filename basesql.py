@@ -135,3 +135,12 @@ class Base:
             return cursor.fetchall()
         finally:
             conn.close()
+
+    def recuperar_plataformas(self):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT id_servicio, nombre_plataforma, precio FROM Servicios """)
+            return cursor.fetchall()
+        finally:
+            conn.close()

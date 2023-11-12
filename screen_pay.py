@@ -18,6 +18,7 @@ class ScreenPay:
         self.agregar_cliente()
         self.modifica_cliente()
         self.listado_clientes()
+        self.listado_plataformas()
 
         self.cuaderno.grid(column=0, row=0, padx=10, pady=10)
         self.ventana.mainloop()
@@ -118,13 +119,13 @@ class ScreenPay:
         self.labelframe3 = ttk.LabelFrame(self.pagina3, text="Clientes")
         self.labelframe3.grid(column=0, row=0, padx=5, pady=10)
         self.boton1 = ttk.Button(
-            self.labelframe3, text="Listado completo", command=self.listar
+            self.labelframe3, text="Listado completo", command=self.listar_clientes
         )
         self.boton1.grid(column=0, row=0, padx=4, pady=4)
         self.scrolledtext1 = st.ScrolledText(self.labelframe3, width=30, height=10)
         self.scrolledtext1.grid(column=0, row=1, padx=10, pady=10)
 
-    def listar(self):
+    def listar_clientes(self):
         respuesta = self.base.recuperar_clientes()
         self.scrolledtext1.delete("1.0", tk.END)
         for fila in respuesta:
@@ -139,5 +140,31 @@ class ScreenPay:
                 + "\n\n",
             )
 
+    def listado_plataformas(self):
+        self.pagina4 = ttk.Frame(self.cuaderno)
+        self.cuaderno.add(self.pagina4, text="Listado Plataformas")
+        self.labelframe4 = ttk.LabelFrame(self.pagina4, text="Plataformas")
+        self.labelframe4.grid(column=0, row=0, padx=5, pady=10)
+        self.boton1 = ttk.Button(
+            self.labelframe4, text="Listado completo", command=self.listar_plataformas
+        )
+        self.boton1.grid(column=0, row=0, padx=4, pady=4)
+        self.scrolledtext2 = st.ScrolledText(self.labelframe4, width=30, height=10)
+        self.scrolledtext2.grid(column=0, row=1, padx=10, pady=10)
+
+    def listar_plataformas(self):
+        respuesta = self.base.recuperar_plataformas()
+        self.scrolledtext2.delete("1.0", tk.END)
+        for fila in respuesta:
+            self.scrolledtext2.insert(
+                tk.END,
+                "ID:"
+                + str(fila[0])
+                + "\nNombre:"
+                + fila[1]
+                + "\nPrecio:"
+                + str(fila[2])
+                + "\n\n",
+            )
 
 aplicacion = ScreenPay()
