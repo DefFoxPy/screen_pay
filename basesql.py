@@ -36,3 +36,12 @@ class Base:
             return cursor.fetchall()
         finally:
             conn.close()
+
+    def recuperar_clientes(self):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute("""SELECT id_cliente, nombre, correo FROM Cliente""")
+            return cursor.fetchall()
+        finally:
+            conn.close()
