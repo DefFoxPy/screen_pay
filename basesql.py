@@ -2,9 +2,57 @@ import sqlite3
 
 
 class Base:
+    def __init__(self):
+        self.crear_tablas()
+
     def abrir(self):
-        conexion = sqlite3.connect("base.db")
-        return conexion
+        conn = None
+        try:
+            conn = sqlite3.connect("base.db")
+        except Error as e:
+            print(e)
+
+        if conn:
+            return conn
+
+    def crear_tablas(self):
+        conn = self.abrir()
+
+        try:
+            sql = """CREATE TABLE IF NOT EXISTS Cliente (
+                id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT,
+                correo TEXT,
+                fecha_registro DATE
+                );"""
+            conn.execute(sql)
+        except Error as e:
+            print(e)
+        try:
+            sql = """CREATE TABLE IF NOT EXISTS Servicios (
+                    id_servicio INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre_plataforma TEXT,
+                    precio REAL
+                    );"""
+            conn.execute(sql)
+        except Error as e:
+            print(e)
+        try:
+            sql = """CREATE TABLE IF NOT EXISTS Pantallas (
+                    id_pantalla INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_cliente INTEGER,
+                    id_servicio INTEGER,
+                    usuario TEXT,
+                    contraseña TEXT,
+                    pantallas_compradas INTEGER,
+                    fecha_renovacion DATE,
+                    suspendida INTEGER,
+                    FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
+                    FOREIGN KEY (id_servicio) REFERENCES Servicios (id_servicio)
+                    );"""
+            conn.execute(sql)
+        except Error as e:
+            print(e)
 
     def alta(self, datos):
         conn = self.abrir()
@@ -48,11 +96,14 @@ class Base:
         try:
             conn = self.abrir()
             cursor = conn.cursor()
-            cursor.execute(""" UPDATE Cliente set nombre = ?, correo = ? where id_cliente = ? """, datos)        
+            cursor.execute(
+                """ UPDATE Cliente set nombre = ?, correo = ? where id_cliente = ? """,
+                datos,
+            )
             conn.commit()
             return cursor.rowcount
         except:
-            conn.close() 
+            conn.close()
 
     def recuperar_clientes(self):
         try:

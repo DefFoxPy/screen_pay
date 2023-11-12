@@ -8,55 +8,6 @@ from tkinter import scrolledtext as st
 from sqlite3 import Error
 
 
-def create_connection():
-    conn = None
-    try:
-        conn = sqlite3.connect("base.db")
-    except Error as e:
-        print(e)
-
-    if conn:
-        return conn
-
-
-def create_table(conn):
-    try:
-        sql = """CREATE TABLE IF NOT EXISTS Cliente (
-            id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT,
-            correo TEXT,
-            fecha_registro DATE
-            );"""
-        conn.execute(sql)
-    except Error as e:
-        print(e)
-    try:
-        sql = """CREATE TABLE IF NOT EXISTS Servicios (
-                id_servicio INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre_plataforma TEXT,
-                precio REAL
-                );"""
-        conn.execute(sql)
-    except Error as e:
-        print(e)
-    try:
-        sql = """CREATE TABLE IF NOT EXISTS Pantallas (
-                id_pantalla INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_cliente INTEGER,
-                id_servicio INTEGER,
-                usuario TEXT,
-                contraseña TEXT,
-                pantallas_compradas INTEGER,
-                fecha_renovacion DATE,
-                suspendida INTEGER,
-                FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
-                FOREIGN KEY (id_servicio) REFERENCES Servicios (id_servicio)
-                );"""
-        conn.execute(sql)
-    except Error as e:
-        print(e)
-
-
 class ScreenPay:
     def __init__(self):
         self.base = basesql.Base()
@@ -189,6 +140,4 @@ class ScreenPay:
             )
 
 
-connection = create_connection()
-create_table(connection)
 aplicacion = ScreenPay()
