@@ -4,6 +4,10 @@ import sqlite3
 class Base:
     def __init__(self):
         self.crear_tablas()
+        self.agregar_servicios("Neflix", 7)
+        self.agregar_servicios("Disney+", 8)
+        self.agregar_servicios("HBO", 10)
+        self.agregar_servicios("Star+", 11)
 
     def abrir(self):
         conn = None
@@ -53,6 +57,24 @@ class Base:
             conn.execute(sql)
         except Error as e:
             print(e)
+
+    def verificar_servicio(self, cursor, nombre):
+        cursor.execute(
+            """ SELECT COUNT(*) FROM Servicios WHERE nombre_plataforma = ? """, (nombre, )
+        )
+        resultado = cursor.fetchone()
+        return resultado[0] > 0
+
+    def agregar_servicios(self, nombre, precio):
+        conn = self.abrir()
+        cursor = conn.cursor()
+
+        if not self.verificar_servicio(cursor, nombre):
+            cursor.execute(
+                "INSERT INTO Servicios (nombre_plataforma, precio) VALUES (?, ?)",
+                (nombre, precio),
+            )
+            conn.commit()
 
     def alta(self, datos):
         conn = self.abrir()
