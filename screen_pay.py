@@ -145,8 +145,8 @@ class ScreenPay:
         datos = (self.id.get(),)
         respuesta = self.base.consulta(datos)
         if len(respuesta) > 0:
-            self.correo.set(respuesta[0][0])
-            self.nombre.set(respuesta[0][1])
+            self.nombre.set(respuesta[0][0])
+            self.correo.set(respuesta[0][1])
         else:
             self.correo.set("")
             self.nombre.set("")
