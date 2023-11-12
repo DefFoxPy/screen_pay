@@ -63,6 +63,7 @@ class ScreenPay:
         self.cuaderno = ttk.Notebook(self.ventana)
 
         self.agregar_cliente()
+        self.consultar_cliente()
 
         self.cuaderno.grid(column=0, row=0, padx=10, pady=10)
         self.ventana.mainloop()
@@ -74,14 +75,14 @@ class ScreenPay:
         self.labelframe1.grid(column=0, row=0, padx=4, pady=4)
         self.label1 = ttk.Label(self.labelframe1, text="Nombre")
         self.label1.grid(column=0, row=0, padx=4, pady=4)
-        self.nombre = tk.StringVar()
-        self.entrynombre = tk.Entry(self.labelframe1, textvariable=self.nombre)
-        self.entrynombre.grid(column=1, row=0, padx=4, pady=4)
+        self.nombreagregar = tk.StringVar()
+        self.entrynombreagregar = tk.Entry(self.labelframe1, textvariable=self.nombreagregar)
+        self.entrynombreagregar.grid(column=1, row=0, padx=4, pady=4)
         self.label2 = ttk.Label(self.labelframe1, text="Correo")
         self.label2.grid(column=0, row=1, padx=4, pady=4)
-        self.correo = tk.StringVar()
-        self.entrycorreo = ttk.Entry(self.labelframe1, textvariable=self.correo)
-        self.entrycorreo.grid(column=1, row=1, padx=4, pady=4)
+        self.correoagregar = tk.StringVar()
+        self.entrycorreoagregar = ttk.Entry(self.labelframe1, textvariable=self.correoagregar)
+        self.entrycorreoagregar.grid(column=1, row=1, padx=4, pady=4)
         self.boton1 = ttk.Button(
             self.labelframe1, text="Confirmar", command=self.agregar
         )
@@ -89,19 +90,61 @@ class ScreenPay:
 
     def agregar(self):
         fecha_hoy = datetime.date.today()
-        datos = (self.nombre.get(), self.correo.get(), fecha_hoy)
+        datos = (self.nombreagregar.get(), self.correoagregar.get(), fecha_hoy)
         respuesta, bandera = self.base.alta(datos)
-        
+
         if bandera:
-            mb.showinfo("Informacion", f"Ya existe un cliente con ese correo y su id es:{respuesta}")
+            mb.showinfo(
+                "Informacion",
+                f"Ya existe un cliente con ese correoagregar y su id es:{respuesta}",
+            )
         else:
             mb.showinfo(
                 "Informacion",
                 f"Se ha agregado el cliente con éxito, su id es el:{respuesta}",
             )
-        self.nombre.set("")
-        self.correo.set("")
-        
+        self.nombreagregar.set("")
+        self.correoagregar.set("")
+
+    def consultar_cliente(self):
+        self.pagina2 = ttk.Frame(self.cuaderno)
+        self.cuaderno.add(self.pagina2, text="Consulta por id")
+        self.labelframe2 = ttk.LabelFrame(self.pagina2, text="Cliente")
+        self.labelframe2.grid(column=0, row=0, padx=5, pady=10)
+        self.label1 = ttk.Label(self.labelframe2, text="ID:")
+        self.label1.grid(column=0, row=0, padx=4, pady=4)
+        self.id = tk.StringVar()
+        self.entryid = ttk.Entry(self.labelframe2, textvariable=self.id)
+        self.entryid.grid(column=1, row=0, padx=4, pady=4)
+        self.label2 = ttk.Label(self.labelframe2, text="Nombre:")
+        self.label2.grid(column=0, row=1, padx=4, pady=4)
+        self.nombre = tk.StringVar()
+        self.entrynombre = ttk.Entry(
+            self.labelframe2, textvariable=self.nombre, state="readonly"
+        )
+        self.entrynombre.grid(column=1, row=1, padx=4, pady=4)
+        self.label3 = ttk.Label(self.labelframe2, text="Correo:")
+        self.label3.grid(column=0, row=2, padx=4, pady=4)
+        self.correo = tk.StringVar()
+        self.entrycorreo = ttk.Entry(
+            self.labelframe2, textvariable=self.correo, state="readonly"
+        )
+        self.entrycorreo.grid(column=1, row=2, padx=4, pady=4)
+        self.boton1 = ttk.Button(
+            self.labelframe2, text="Consultar", command=self.consultar
+        )
+        self.boton1.grid(column=1, row=3, padx=4, pady=4)
+
+    def consultar(self):
+        datos = (self.id.get(), )
+        respuesta = self.base.consulta(datos)
+        if len(respuesta) > 0:
+            self.correo.set(respuesta[0][0])
+            self.nombre.set(respuesta[0][1])
+        else:
+            self.correo.set("")
+            self.nombre.set("")
+            mb.showinfo("Información", "No existe un cliente con dicha id")
 
 
 connection = create_connection()

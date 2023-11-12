@@ -12,7 +12,7 @@ class Base:
 
         bandera = False
 
-        cursor.execute("""SELECT correo FROM Cliente WHERE correo = ?""", (datos[1],))
+        cursor.execute("""SELECT id_cliente FROM Cliente WHERE correo = ? """, (datos[1], ))
         resultado = cursor.fetchone()
 
         if resultado:
@@ -21,9 +21,18 @@ class Base:
 
         cursor.execute("""INSERT INTO Cliente (nombre, correo, fecha_registro) VALUES (?, ?, ?)""", datos)
 
-        correo = cursor.lastrowid
+        id_cliente = cursor.lastrowid
         
         conn.commit()
         conn.close()
 
-        return (correo, bandera)
+        return (id_cliente, bandera)
+
+    def consulta(self, datos):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT nombre, correo FROM Cliente where id_cliente = ? """, datos)
+            return cursor.fetchall()
+        finally:
+            conn.close()
