@@ -18,7 +18,6 @@ class ScreenPay:
 
         self.agregar_cliente()
         self.modifica_cliente()
-        self.listado_clientes()
         self.listado_plataformas()
         self.agregar_pantalla()
 
@@ -96,6 +95,15 @@ class ScreenPay:
         )
         self.boton1.grid(column=1, row=4, padx=4, pady=4)
 
+        self.labelframe3 = ttk.LabelFrame(self.pagina2, text="Listado")
+        self.labelframe3.grid(column=1, row=0, padx=5, pady=10)
+        self.boton1 = ttk.Button(
+            self.labelframe3, text="Listado completo", command=self.listar_clientes
+        )
+        self.boton1.grid(column=0, row=0, padx=4, pady=4)
+        self.scrolledtext1 = st.ScrolledText(self.labelframe3, width=30, height=10)
+        self.scrolledtext1.grid(column=0, row=1, padx=10, pady=10)
+
     def consultar(self):
         datos = (self.idmod.get(),)
         respuesta = self.base.consulta(datos)
@@ -115,18 +123,6 @@ class ScreenPay:
         else:
             mb.showinfo("Información", f"No existe un Cliente con la id: {datos[2]}")
 
-    def listado_clientes(self):
-        self.pagina3 = ttk.Frame(self.cuaderno)
-        self.cuaderno.add(self.pagina3, text="Listado Clientes")
-        self.labelframe3 = ttk.LabelFrame(self.pagina3, text="Clientes")
-        self.labelframe3.grid(column=0, row=0, padx=5, pady=10)
-        self.boton1 = ttk.Button(
-            self.labelframe3, text="Listado completo", command=self.listar_clientes
-        )
-        self.boton1.grid(column=0, row=0, padx=4, pady=4)
-        self.scrolledtext1 = st.ScrolledText(self.labelframe3, width=30, height=10)
-        self.scrolledtext1.grid(column=0, row=1, padx=10, pady=10)
-
     def listar_clientes(self):
         respuesta = self.base.recuperar_clientes()
         self.scrolledtext1.delete("1.0", tk.END)
@@ -145,8 +141,8 @@ class ScreenPay:
     def listado_plataformas(self):
         self.pagina4 = ttk.Frame(self.cuaderno)
         self.cuaderno.add(self.pagina4, text="Plataformas")
-        self.labelframe4 = ttk.LabelFrame(self.pagina4, text="Plataformas")
-        self.labelframe4.grid(column=0, row=0, padx=5, pady=10)
+        self.labelframe4 = ttk.LabelFrame(self.pagina4, text="Listado")
+        self.labelframe4.grid(column=1, row=0, padx=5, pady=10)
         self.boton1 = ttk.Button(
             self.labelframe4, text="Listado completo", command=self.listar_plataformas
         )
@@ -154,8 +150,8 @@ class ScreenPay:
         self.scrolledtext2 = st.ScrolledText(self.labelframe4, width=30, height=10)
         self.scrolledtext2.grid(column=0, row=1, padx=10, pady=10)
 
-        self.labelframe6 = ttk.LabelFrame(self.pagina4, text="Modificar")
-        self.labelframe6.grid(column=1, row=0, padx=5, pady=10)
+        self.labelframe6 = ttk.LabelFrame(self.pagina4, text="Plataforma")
+        self.labelframe6.grid(column=0, row=0, padx=5, pady=10)
         self.label1 = ttk.Label(self.labelframe6, text="ID:")
         self.label1.grid(column=0, row=0, padx=4, pady=4)
         self.id_plat = tk.StringVar()
@@ -240,14 +236,6 @@ class ScreenPay:
         )
         self.entrycontrasenia_agregar.grid(column=1, row=3, padx=4, pady=4)
 
-        self.label5 = ttk.Label(self.labelframe5, text="Cantidad")
-        self.label5.grid(column=0, row=4, padx=4, pady=4)
-        self.cantidad_agregar = tk.StringVar()
-        self.entrycantidad_agregar = ttk.Entry(
-            self.labelframe5, textvariable=self.cantidad_agregar
-        )
-        self.entrycantidad_agregar.grid(column=1, row=4, padx=4, pady=4)
-
         self.label6 = ttk.Label(self.labelframe5, text="Renovacion")
         self.label6.grid(column=0, row=5, padx=4, pady=4)
         self.renovacion = tk.StringVar()
@@ -277,7 +265,16 @@ class ScreenPay:
         self.renovacion.set(self.calendar.get_date())
 
     def agrega_pantalla(self):
-        pass
+        datos = (
+            self.id_cliente_agregar.get(),
+            self.id_servicio_agregar.get(),
+            self.usuario_agregar.get(),
+            self.contrasenia_agregar.get(),
+            self.renovacion.get(),
+            0,  # estado de la cuenta
+        )
+        respuesta = self.base.agrega_pantalla(datos)
+        print(respuesta)
 
 
 aplicacion = ScreenPay()
