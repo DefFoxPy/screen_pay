@@ -309,13 +309,14 @@ class ScreenPay:
         self.labelframe8 = ttk.LabelFrame(self.pagina6, text="Estado")
         self.labelframe8.grid(column=1, row=0, padx=4, pady=4)
         self.boton1 = ttk.Button(
-            self.labelframe8, text="Mostrar Pantallas Suspendidas", command=self.actualizar_estado
+            self.labelframe8,
+            text="Mostrar Pantallas Suspendidas",
+            command=self.actualizar_estado,
         )
         self.boton1.grid(column=1, row=1, padx=4, pady=4)
 
         self.scrolledtext4 = st.ScrolledText(self.labelframe8, width=30, height=7)
         self.scrolledtext4.grid(column=1, row=2, padx=10, pady=10)
-
 
     def obtener_pantallas(self):
         datos = self.id_cliente_gestion.get()
@@ -345,6 +346,7 @@ class ScreenPay:
                 + f"{estado}"
                 + "\n\n",
             )
+
     def actualizar_estado(self):
         respuesta = self.base.recuperar_vencidos()
         self.scrolledtext4.delete("1.0", tk.END)
@@ -373,4 +375,3 @@ class ScreenPay:
 
 
 aplicacion = ScreenPay()
-    

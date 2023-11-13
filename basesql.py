@@ -213,16 +213,16 @@ class Base:
             resultado = cursor.fetchone()
             if resultado:
                 return "Ya existe una pantalla que tiene asiganda dicho usuario"
-            
+
             fecha_hoy = datetime.today()
             suspendida = 0
             if fecha_hoy > datetime.strptime(datos[4], "%m/%d/%y"):
                 suspendida = 1
-            
+
             cursor.execute(
                 """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
                 VALUES (?, ?, ?, ?, ?, ?) """,
-                (datos[0], datos[1], datos[2],datos[3], datos[4], suspendida)
+                (datos[0], datos[1], datos[2], datos[3], datos[4], suspendida),
             )
 
             id_pantalla = cursor.lastrowid
@@ -244,7 +244,6 @@ class Base:
         finally:
             conn.close()
 
-
     def recuperar_vencidos(self):
         try:
             conn = self.abrir()
@@ -253,22 +252,22 @@ class Base:
             pantallas = cursor.fetchall()
 
             fecha_hoy = datetime.today()
-            
+
             for pantalla in pantallas:
                 fecha_renovacion = datetime.strptime(pantalla[5], "%m/%d/%y")
                 if fecha_hoy > fecha_renovacion:
                     cursor.execute(
                         """ UPDATE Pantallas SET suspendida = 1 WHERE id_pantalla = ? """,
-                        (pantalla[0],)
+                        (pantalla[0],),
                     )
                 else:
                     cursor.execute(
                         """ UPDATE Pantallas SET suspendida = 0 WHERE id_pantalla = ? """,
-                        (pantalla[0],)
+                        (pantalla[0],),
                     )
 
             conn.commit()
-            cursor.execute(""" SELECT * FROM Pantallas WHERE suspendida = 1""")    
+            cursor.execute(""" SELECT * FROM Pantallas WHERE suspendida = 1""")
             return cursor.fetchall()
 
         finally:
