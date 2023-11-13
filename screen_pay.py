@@ -20,6 +20,7 @@ class ScreenPay:
         self.modifica_cliente()
         self.listado_plataformas()
         self.agregar_pantalla()
+        self.gestion_pantallas()
 
         self.cuaderno.grid(column=0, row=0, padx=10, pady=10)
         self.ventana.mainloop()
@@ -90,7 +91,7 @@ class ScreenPay:
             self.labelframe2, text="Consultar", command=self.consultar
         )
         self.boton1.grid(column=1, row=3, padx=4, pady=4)
-        
+
         self.boton2 = ttk.Button(
             self.labelframe2, text="Modificar", command=self.modifica
         )
@@ -127,7 +128,7 @@ class ScreenPay:
         mb.showinfo("Información", respuesta)
 
     def elimina_cliente(self):
-        datos = (self.idmod.get())
+        datos = self.idmod.get()
         respuesta = self.base.elimina_cliente(datos)
         mb.showinfo("Información", respuesta)
 
@@ -279,10 +280,97 @@ class ScreenPay:
             self.usuario_agregar.get(),
             self.contrasenia_agregar.get(),
             self.renovacion.get(),
-            0,  # estado de la cuenta
         )
         respuesta = self.base.agrega_pantalla(datos)
         mb.showinfo("Información", respuesta)
 
+    def gestion_pantallas(self):
+        self.pagina6 = ttk.Frame(self.cuaderno)
+        self.cuaderno.add(self.pagina6, text="Gestión Pantallas")
+        self.labelframe7 = ttk.LabelFrame(self.pagina6, text="Cliente")
+        self.labelframe7.grid(column=0, row=0, padx=4, pady=4)
+
+        self.label1 = ttk.Label(self.labelframe7, text="ID:")
+        self.label1.grid(column=0, row=0, padx=4, pady=4)
+        self.id_cliente_gestion = tk.StringVar()
+        self.entryid_cliente_gestion = tk.Entry(
+            self.labelframe7, textvariable=self.id_cliente_gestion
+        )
+        self.entryid_cliente_gestion.grid(column=1, row=0, padx=4, pady=4)
+
+        self.boton1 = ttk.Button(
+            self.labelframe7, text="Buscar", command=self.obtener_pantallas
+        )
+        self.boton1.grid(column=1, row=1, padx=4, pady=4)
+
+        self.scrolledtext3 = st.ScrolledText(self.labelframe7, width=30, height=7)
+        self.scrolledtext3.grid(column=1, row=2, padx=10, pady=10)
+
+        self.labelframe8 = ttk.LabelFrame(self.pagina6, text="Estado")
+        self.labelframe8.grid(column=1, row=0, padx=4, pady=4)
+        self.boton1 = ttk.Button(
+            self.labelframe8, text="Mostrar Pantallas Suspendidas", command=self.actualizar_estado
+        )
+        self.boton1.grid(column=1, row=1, padx=4, pady=4)
+
+        self.scrolledtext4 = st.ScrolledText(self.labelframe8, width=30, height=7)
+        self.scrolledtext4.grid(column=1, row=2, padx=10, pady=10)
+
+
+    def obtener_pantallas(self):
+        datos = self.id_cliente_gestion.get()
+        respuesta = self.base.recuperar_pantallas(datos)
+        self.scrolledtext3.delete("1.0", tk.END)
+        if len(respuesta) == 0:
+            self.scrolledtext3.insert(tk.END, "Sin pantallas registradas")
+        for fila in respuesta:
+            estado = "suspendida"
+            if int(fila[6]) == 0:
+                estado = "renovada"
+            self.scrolledtext3.insert(
+                tk.END,
+                "ID pantalla:"
+                + str(fila[0])
+                + "\nID Cliente:"
+                + str(fila[1])
+                + "\nID servicio:"
+                + str(fila[2])
+                + "\nUsuario:"
+                + fila[3]
+                + "\nContraseña:"
+                + fila[4]
+                + "\nFecha_renonvacion:"
+                + fila[5]
+                + "\nEstado:"
+                + f"{estado}"
+                + "\n\n",
+            )
+    def actualizar_estado(self):
+        respuesta = self.base.recuperar_vencidos()
+        self.scrolledtext4.delete("1.0", tk.END)
+        for fila in respuesta:
+            estado = "suspendida"
+            if int(fila[6]) == 0:
+                estado = "renovada"
+            self.scrolledtext4.insert(
+                tk.END,
+                "ID pantalla:"
+                + str(fila[0])
+                + "\nID Cliente:"
+                + str(fila[1])
+                + "\nID servicio:"
+                + str(fila[2])
+                + "\nUsuario:"
+                + fila[3]
+                + "\nContraseña:"
+                + fila[4]
+                + "\nFecha_renonvacion:"
+                + fila[5]
+                + "\nEstado:"
+                + f"{estado}"
+                + "\n\n",
+            )
+
 
 aplicacion = ScreenPay()
+    

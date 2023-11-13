@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 
+
 class Base:
     def __init__(self):
         self.crear_tablas()
@@ -50,10 +51,15 @@ class Base:
                     contraseña TEXT,
                     fecha_renovacion DATE,
                     suspendida INTEGER,
-                    FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente) ON DELETE CASCADE,
-                    FOREIGN KEY (id_servicio) REFERENCES Servicios (id_servicio) ON DELETE CASCADE
+                    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente) ON DELETE CASCADE,
+                    FOREIGN KEY (id_servicio) REFERENCES Servicios(id_servicio) ON DELETE CASCADE
                     );"""
             conn.execute(sql)
+        except Error as e:
+            print(e)
+
+        try:
+            conn.execute(""" PRAGMA foreign_keys=on; """)
         except Error as e:
             print(e)
 
@@ -127,25 +133,20 @@ class Base:
                 return f"Se modificó al cliente con id: {datos[2]}"
             else:
                 return f"No se pudo modificar al cliente con id: {datos[2]}"
-        except:
-            conn.close()
-
-    def elimina_cliente(self, datos):
-        try:
-            conn = self.abrir()
-            cursor = conn.cursor()
-            cursor.execute(
-                """ DELETE FROM Cliente WHERE id_cliente = ? """,
-                datos)
-            conn.commit()
-            if cursor.rowcount > 0:
-                return "El cliente ha sido eliminado"
-            else:
-                return "No se pudo eliminar al cliente"
-            
         finally:
             conn.close()
 
+    def elimina_cliente(self, datos):
+        conn = self.abrir()
+        cursor = conn.cursor()
+        cursor.execute("""PRAGMA foreign_keys = ON""")
+        cursor.execute(""" DELETE FROM Cliente WHERE id_cliente = ? """, datos)
+        conn.commit()
+        conn.close()
+        if cursor.rowcount > 0:
+            return "El cliente ha sido eliminado"
+        else:
+            return "No se pudo eliminar al cliente"
 
     def modifica_plataforma(self, datos):
         if datos[0] < 0.0:
@@ -189,8 +190,9 @@ class Base:
             conn = self.abrir()
             cursor = conn.cursor()
 
-            # verificaciones
-            cursor.execute(""" SELECT * FROM Cliente WHERE id_cliente = ?""", (datos[0]))
+            cursor.execute(
+                """ SELECT * FROM Cliente WHERE id_cliente = ?""", (datos[0])
+            )
             resultado = cursor.fetchone()
             if not resultado:
                 return "No existe un usuario con esa id o fue eliminado"
@@ -205,24 +207,69 @@ class Base:
             if len(datos[2]) == 0 or len(datos[3]) == 0:
                 return "El campo usuario y contraseña no pueden estar vacios"
 
-            cursor.execute(""" SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],))
+            cursor.execute(
+                """ SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],)
+            )
             resultado = cursor.fetchone()
             if resultado:
                 return "Ya existe una pantalla que tiene asiganda dicho usuario"
-
+            
             fecha_hoy = datetime.today()
+            suspendida = 0
             if fecha_hoy > datetime.strptime(datos[4], "%m/%d/%y"):
-                return "La fecha de renovacion tiene que ser después de hoy"
-
+                suspendida = 1
+            
             cursor.execute(
                 """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
                 VALUES (?, ?, ?, ?, ?, ?) """,
-                datos,
+                (datos[0], datos[1], datos[2],datos[3], datos[4], suspendida)
             )
 
             id_pantalla = cursor.lastrowid
 
             conn.commit()
-            return id_pantalla
+            return f"Pantalla agregada con éxito{id_pantalla}"
+        finally:
+            conn.close()
+
+    def recuperar_pantallas(self, datos):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(
+                """ SELECT id_pantalla, id_cliente, id_servicio, usuario, contraseña, fecha_renovacion, suspendida FROM Pantallas WHERE id_cliente = ?""",
+                datos,
+            )
+            return cursor.fetchall()
+        finally:
+            conn.close()
+
+
+    def recuperar_vencidos(self):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT * FROM Pantallas""")
+            pantallas = cursor.fetchall()
+
+            fecha_hoy = datetime.today()
+            
+            for pantalla in pantallas:
+                fecha_renovacion = datetime.strptime(pantalla[5], "%m/%d/%y")
+                if fecha_hoy > fecha_renovacion:
+                    cursor.execute(
+                        """ UPDATE Pantallas SET suspendida = 1 WHERE id_pantalla = ? """,
+                        (pantalla[0],)
+                    )
+                else:
+                    cursor.execute(
+                        """ UPDATE Pantallas SET suspendida = 0 WHERE id_pantalla = ? """,
+                        (pantalla[0],)
+                    )
+
+            conn.commit()
+            cursor.execute(""" SELECT * FROM Pantallas WHERE suspendida = 1""")    
+            return cursor.fetchall()
+
         finally:
             conn.close()
