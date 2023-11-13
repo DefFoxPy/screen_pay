@@ -5,6 +5,7 @@ import basesql
 from tkinter import ttk
 from tkinter import messagebox as mb
 from tkinter import scrolledtext as st
+from tkcalendar import Calendar
 from sqlite3 import Error
 
 
@@ -19,6 +20,7 @@ class ScreenPay:
         self.modifica_cliente()
         self.listado_clientes()
         self.listado_plataformas()
+        self.agregar_pantalla()
 
         self.cuaderno.grid(column=0, row=0, padx=10, pady=10)
         self.ventana.mainloop()
@@ -166,5 +168,82 @@ class ScreenPay:
                 + str(fila[2])
                 + "\n\n",
             )
+
+    def agregar_pantalla(self):
+        self.pagina5 = ttk.Frame(self.cuaderno)
+        self.cuaderno.add(self.pagina5, text="Agregar Pantalla")
+        self.labelframe5 = ttk.LabelFrame(self.pagina5, text="Pantalla")
+        self.labelframe5.grid(column=0, row=0, padx=4, pady=4)
+
+        self.label1 = ttk.Label(self.labelframe5, text="ID Cliente:")
+        self.label1.grid(column=0, row=0, padx=4, pady=4)
+        self.id_cliente_agregar = tk.StringVar()
+        self.entryid_cliente_agregar = tk.Entry(
+            self.labelframe5, textvariable=self.id_cliente_agregar
+        )
+        self.entryid_cliente_agregar.grid(column=1, row=0, padx=4, pady=4)
+
+        self.label2 = ttk.Label(self.labelframe5, text="ID Servicio:")
+        self.label2.grid(column=0, row=1, padx=4, pady=4)
+        self.id_servicio_agregar = tk.StringVar()
+        self.entryid_servicio_agregar = ttk.Entry(
+            self.labelframe5, textvariable=self.id_servicio_agregar
+        )
+        self.entryid_servicio_agregar.grid(column=1, row=1, padx=4, pady=4)
+
+        self.label3 = ttk.Label(self.labelframe5, text="Usuario:")
+        self.label3.grid(column=0, row=2, padx=4, pady=4)
+        self.usuario_agregar = tk.StringVar()
+        self.entryusuario_agregar = ttk.Entry(
+            self.labelframe5, textvariable=self.usuario_agregar
+        )
+        self.entryusuario_agregar.grid(column=1, row=2, padx=4, pady=4)
+
+        self.label4 = ttk.Label(self.labelframe5, text="Contraseña:")
+        self.label4.grid(column=0, row=3, padx=4, pady=4)
+        self.contrasenia_agregar = tk.StringVar()
+        self.entrycontrasenia_agregar = ttk.Entry(
+            self.labelframe5, textvariable=self.contrasenia_agregar
+        )
+        self.entrycontrasenia_agregar.grid(column=1, row=3, padx=4, pady=4)
+
+        self.label5 = ttk.Label(self.labelframe5, text="Cantidad")
+        self.label5.grid(column=0, row=4, padx=4, pady=4)
+        self.cantidad_agregar = tk.StringVar()
+        self.entrycantidad_agregar = ttk.Entry(
+            self.labelframe5, textvariable=self.cantidad_agregar
+        )
+        self.entrycantidad_agregar.grid(column=1, row=4, padx=4, pady=4)
+
+        self.label6 = ttk.Label(self.labelframe5, text="Renovacion")
+        self.label6.grid(column=0, row=5, padx=4, pady=4)
+        self.renovacion = tk.StringVar()
+        self.entryrenovacion = ttk.Entry(
+            self.labelframe5, textvariable=self.renovacion, state="readonly"
+        )
+        self.entryrenovacion.grid(column=1, row=5, padx=4, pady=4)
+
+
+        self.boton1 = ttk.Button(
+            self.labelframe5, text="Confirmar", command=self.agrega_pantalla
+        )
+        self.boton1.grid(column=1, row=6, padx=4, pady=4)
+
+        self.labelframe6 = ttk.LabelFrame(self.pagina5, text="Calendario")
+        self.labelframe6.grid(column=1, row=0, padx=4, pady=4)
+        self.calendar = Calendar(self.labelframe6, selectmode="day", year=2023, month=11, day=2)
+        self.calendar.grid(column=0)
+
+        self.boton2 = ttk.Button(
+            self.labelframe6, text="Obtener Fecha", command=self.agrega_fecha
+        )
+        self.boton2.grid(column=0, row=1, padx=4, pady=4)
+
+    def agrega_fecha(self):    
+        self.renovacion.set(self.calendar.get_date())
+
+    def agrega_pantalla(self):
+        pass
+
 
 aplicacion = ScreenPay()
