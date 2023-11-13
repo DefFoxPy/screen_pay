@@ -164,16 +164,31 @@ class Base:
         finally:
             conn.close()
 
-
     def agrega_pantalla(self, datos):
-        # verificaciones
-        
         conn = self.abrir()
         cursor = conn.cursor()
+
+        # verificaciones
+        cursor.execute(
+            """ SELECT COUNT(*) FROM Cliente WHERE id_cliente = ?""", (datos[0])
+        )
+        resultado = cursor.fetchone()
+        if resultado[0] == 0:
+            conn.close()
+            return "No existe un usuario con esa id o fue eliminado"
+
+        cursor.execute(
+            """ SELECT COUNT(*) FROM Servicios WHERE id_servicio = ? """, (datos[1])
+        )
+        resultado = cursor.fetchone()
+        if resultado[0] == 0:
+            conn.close()
+            return "NO existe un Servicio con esa id o fue eliminado"
+
         cursor.execute(
             """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
             VALUES (?, ?, ?, ?, ?, ?) """,
-            datos
+            datos,
         )
 
         id_pantalla = cursor.lastrowid
@@ -181,6 +196,3 @@ class Base:
         conn.commit()
         conn.close()
         return id_pantalla
-    
-
-
