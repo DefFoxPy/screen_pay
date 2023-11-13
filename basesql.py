@@ -50,8 +50,8 @@ class Base:
                     contraseña TEXT,
                     fecha_renovacion DATE,
                     suspendida INTEGER,
-                    FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
-                    FOREIGN KEY (id_servicio) REFERENCES Servicios (id_servicio)
+                    FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente) ON DELETE CASCADE,
+                    FOREIGN KEY (id_servicio) REFERENCES Servicios (id_servicio) ON DELETE CASCADE
                     );"""
             conn.execute(sql)
         except Error as e:
@@ -169,9 +169,7 @@ class Base:
         cursor = conn.cursor()
 
         # verificaciones
-        cursor.execute(
-            """ SELECT * FROM Cliente WHERE id_cliente = ?""", (datos[0])
-        )
+        cursor.execute(""" SELECT * FROM Cliente WHERE id_cliente = ?""", (datos[0]))
         resultado = cursor.fetchone()
         if not resultado:
             conn.close()
@@ -187,14 +185,12 @@ class Base:
 
         if len(datos[2]) == 0 or len(datos[3]) == 0:
             return "El campo usuario y contraseña no pueden estar vacios"
-        
-        cursor.execute(
-            """ SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],)
-        )
+
+        cursor.execute(""" SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],))
         resultado = cursor.fetchone()
         if resultado:
             conn.close()
-            return "Ya existe una pantalla que tiene asiganda dicho usuario" 
+            return "Ya existe una pantalla que tiene asiganda dicho usuario"
 
         cursor.execute(
             """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
