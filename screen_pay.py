@@ -111,9 +111,9 @@ class ScreenPay:
         datos = (self.nombremod.get(), self.correomod.get(), self.idmod.get())
         respuesta = self.base.modifica_cliente(datos)
         if respuesta == 1:
-            mb.showinfo("Información", f"Se modificó al cliente con id: datos[2]")
+            mb.showinfo("Información", f"Se modificó al cliente con id: {datos[2]}")
         else:
-            mb.showinfo("Información", f"No existe un Cliente con la id: datos[2]")
+            mb.showinfo("Información", f"No existe un Cliente con la id: {datos[2]}")
 
     def listado_clientes(self):
         self.pagina3 = ttk.Frame(self.cuaderno)
@@ -154,6 +154,26 @@ class ScreenPay:
         self.scrolledtext2 = st.ScrolledText(self.labelframe4, width=30, height=10)
         self.scrolledtext2.grid(column=0, row=1, padx=10, pady=10)
 
+        self.labelframe6 = ttk.LabelFrame(self.pagina4, text="Modificar")
+        self.labelframe6.grid(column=1, row=0, padx=5, pady=10)
+        self.label1 = ttk.Label(self.labelframe6, text="ID:")
+        self.label1.grid(column=0, row=0, padx=4, pady=4)
+        self.id_plat = tk.StringVar()
+        self.entryid_plat = ttk.Entry(self.labelframe6, textvariable=self.id_plat)
+        self.entryid_plat.grid(column=1, row=0, padx=4, pady=4)
+        self.label2 = ttk.Label(self.labelframe6, text="Precio:")
+        self.label2.grid(column=0, row=1, padx=4, pady=4)
+        self.precio_plat = tk.StringVar()
+        self.entryprecio_plat = ttk.Entry(
+            self.labelframe6, textvariable=self.precio_plat
+        )
+        self.entryprecio_plat.grid(column=1, row=1, padx=4, pady=4)
+
+        self.boton1 = ttk.Button(
+            self.labelframe6, text="Confirmar", command=self.modifica_plataforma
+        )
+        self.boton1.grid(column=1, row=6, padx=4, pady=4)
+
     def listar_plataformas(self):
         respuesta = self.base.recuperar_plataformas()
         self.scrolledtext2.delete("1.0", tk.END)
@@ -167,6 +187,19 @@ class ScreenPay:
                 + "\nPrecio:"
                 + str(fila[2])
                 + "\n\n",
+            )
+
+    def modifica_plataforma(self):
+        datos = (float(self.precio_plat.get()), self.id_plat.get())
+        respuesta = self.base.modifica_plataforma(datos)
+        if respuesta == 1:
+            mb.showinfo(
+                "Información",
+                f"Se modificó el precio de la plataforma con id: {datos[1]}",
+            )
+        else:
+            mb.showinfo(
+                "Información", f"No existe una plataforma con la id: {datos[1]}"
             )
 
     def agregar_pantalla(self):
@@ -223,7 +256,6 @@ class ScreenPay:
         )
         self.entryrenovacion.grid(column=1, row=5, padx=4, pady=4)
 
-
         self.boton1 = ttk.Button(
             self.labelframe5, text="Confirmar", command=self.agrega_pantalla
         )
@@ -231,7 +263,9 @@ class ScreenPay:
 
         self.labelframe6 = ttk.LabelFrame(self.pagina5, text="Calendario")
         self.labelframe6.grid(column=1, row=0, padx=4, pady=4)
-        self.calendar = Calendar(self.labelframe6, selectmode="day", year=2023, month=11, day=2)
+        self.calendar = Calendar(
+            self.labelframe6, selectmode="day", year=2023, month=11, day=2
+        )
         self.calendar.grid(column=0)
 
         self.boton2 = ttk.Button(
@@ -239,7 +273,7 @@ class ScreenPay:
         )
         self.boton2.grid(column=0, row=1, padx=4, pady=4)
 
-    def agrega_fecha(self):    
+    def agrega_fecha(self):
         self.renovacion.set(self.calendar.get_date())
 
     def agrega_pantalla(self):

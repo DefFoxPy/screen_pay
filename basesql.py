@@ -60,7 +60,8 @@ class Base:
 
     def verificar_servicio(self, cursor, nombre):
         cursor.execute(
-            """ SELECT COUNT(*) FROM Servicios WHERE nombre_plataforma = ? """, (nombre, )
+            """ SELECT COUNT(*) FROM Servicios WHERE nombre_plataforma = ? """,
+            (nombre,),
         )
         resultado = cursor.fetchone()
         return resultado[0] > 0
@@ -119,8 +120,25 @@ class Base:
             conn = self.abrir()
             cursor = conn.cursor()
             cursor.execute(
-                """ UPDATE Cliente set nombre = ?, correo = ? where id_cliente = ? """,
+                """ UPDATE Cliente SET nombre = ?, correo = ? WHERE id_cliente = ? """,
                 datos,
+            )
+            conn.commit()
+            return cursor.rowcount
+        except:
+            conn.close()
+
+    def modifica_plataforma(self, datos):
+        if datos[0] < 0.0:
+            precio = 0
+        else:
+            precio = datos[0]
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(
+                """ UPDATE Servicios SET precio = ? WHERE id_servicio = ? """,
+                (precio, datos[1]),
             )
             conn.commit()
             return cursor.rowcount
@@ -140,7 +158,9 @@ class Base:
         try:
             conn = self.abrir()
             cursor = conn.cursor()
-            cursor.execute(""" SELECT id_servicio, nombre_plataforma, precio FROM Servicios """)
+            cursor.execute(
+                """ SELECT id_servicio, nombre_plataforma, precio FROM Servicios """
+            )
             return cursor.fetchall()
         finally:
             conn.close()
