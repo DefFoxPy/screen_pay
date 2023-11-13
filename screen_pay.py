@@ -90,10 +90,16 @@ class ScreenPay:
             self.labelframe2, text="Consultar", command=self.consultar
         )
         self.boton1.grid(column=1, row=3, padx=4, pady=4)
-        self.boton1 = ttk.Button(
+        
+        self.boton2 = ttk.Button(
             self.labelframe2, text="Modificar", command=self.modifica
         )
-        self.boton1.grid(column=1, row=4, padx=4, pady=4)
+        self.boton2.grid(column=1, row=4, padx=4, pady=4)
+
+        self.boton3 = ttk.Button(
+            self.labelframe2, text="Eliminar", command=self.elimina_cliente
+        )
+        self.boton3.grid(column=1, row=5, padx=4, pady=4)
 
         self.labelframe3 = ttk.LabelFrame(self.pagina2, text="Listado")
         self.labelframe3.grid(column=1, row=0, padx=5, pady=10)
@@ -118,10 +124,12 @@ class ScreenPay:
     def modifica(self):
         datos = (self.nombremod.get(), self.correomod.get(), self.idmod.get())
         respuesta = self.base.modifica_cliente(datos)
-        if respuesta == 1:
-            mb.showinfo("Información", f"Se modificó al cliente con id: {datos[2]}")
-        else:
-            mb.showinfo("Información", f"No existe un Cliente con la id: {datos[2]}")
+        mb.showinfo("Información", respuesta)
+
+    def elimina_cliente(self):
+        datos = (self.idmod.get())
+        respuesta = self.base.elimina_cliente(datos)
+        mb.showinfo("Información", respuesta)
 
     def listar_clientes(self):
         respuesta = self.base.recuperar_clientes()
@@ -166,7 +174,7 @@ class ScreenPay:
         self.entryprecio_plat.grid(column=1, row=1, padx=4, pady=4)
 
         self.boton1 = ttk.Button(
-            self.labelframe6, text="Confirmar", command=self.modifica_plataforma
+            self.labelframe6, text="Modificar", command=self.modifica_plataforma
         )
         self.boton1.grid(column=1, row=6, padx=4, pady=4)
 

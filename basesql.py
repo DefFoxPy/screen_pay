@@ -1,5 +1,5 @@
 import sqlite3
-
+from datetime import datetime
 
 class Base:
     def __init__(self):
@@ -123,9 +123,29 @@ class Base:
                 datos,
             )
             conn.commit()
-            return cursor.rowcount
+            if cursor.rowcount == 1:
+                return f"Se modificó al cliente con id: {datos[2]}"
+            else:
+                return f"No se pudo modificar al cliente con id: {datos[2]}"
         except:
             conn.close()
+
+    def elimina_cliente(self, datos):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(
+                """ DELETE FROM Cliente WHERE id_cliente = ? """,
+                datos)
+            conn.commit()
+            if cursor.rowcount > 0:
+                return "El cliente ha sido eliminado"
+            else:
+                return "No se pudo eliminar al cliente"
+            
+        finally:
+            conn.close()
+
 
     def modifica_plataforma(self, datos):
         if datos[0] < 0.0:
@@ -165,41 +185,44 @@ class Base:
             conn.close()
 
     def agrega_pantalla(self, datos):
-        conn = self.abrir()
-        cursor = conn.cursor()
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
 
-        # verificaciones
-        cursor.execute(""" SELECT * FROM Cliente WHERE id_cliente = ?""", (datos[0]))
-        resultado = cursor.fetchone()
-        if not resultado:
+            # verificaciones
+            cursor.execute(""" SELECT * FROM Cliente WHERE id_cliente = ?""", (datos[0]))
+            resultado = cursor.fetchone()
+            if not resultado:
+                return "No existe un usuario con esa id o fue eliminado"
+
+            cursor.execute(
+                """ SELECT * FROM Servicios WHERE id_servicio = ? """, (datos[1],)
+            )
+            resultado = cursor.fetchone()
+            if not resultado:
+                return "No existe un Servicio con esa id o fue eliminado"
+
+            if len(datos[2]) == 0 or len(datos[3]) == 0:
+                return "El campo usuario y contraseña no pueden estar vacios"
+
+            cursor.execute(""" SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],))
+            resultado = cursor.fetchone()
+            if resultado:
+                return "Ya existe una pantalla que tiene asiganda dicho usuario"
+
+            fecha_hoy = datetime.today()
+            if fecha_hoy > datetime.strptime(datos[4], "%m/%d/%y"):
+                return "La fecha de renovacion tiene que ser después de hoy"
+
+            cursor.execute(
+                """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
+                VALUES (?, ?, ?, ?, ?, ?) """,
+                datos,
+            )
+
+            id_pantalla = cursor.lastrowid
+
+            conn.commit()
+            return id_pantalla
+        finally:
             conn.close()
-            return "No existe un usuario con esa id o fue eliminado"
-
-        cursor.execute(
-            """ SELECT * FROM Servicios WHERE id_servicio = ? """, (datos[1],)
-        )
-        resultado = cursor.fetchone()
-        if not resultado:
-            conn.close()
-            return "No existe un Servicio con esa id o fue eliminado"
-
-        if len(datos[2]) == 0 or len(datos[3]) == 0:
-            return "El campo usuario y contraseña no pueden estar vacios"
-
-        cursor.execute(""" SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],))
-        resultado = cursor.fetchone()
-        if resultado:
-            conn.close()
-            return "Ya existe una pantalla que tiene asiganda dicho usuario"
-
-        cursor.execute(
-            """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
-            VALUES (?, ?, ?, ?, ?, ?) """,
-            datos,
-        )
-
-        id_pantalla = cursor.lastrowid
-
-        conn.commit()
-        conn.close()
-        return id_pantalla
