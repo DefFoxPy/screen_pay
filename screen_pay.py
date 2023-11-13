@@ -274,7 +274,6 @@ class ScreenPay:
             0,  # estado de la cuenta
         )
         respuesta = self.base.agrega_pantalla(datos)
-        print(respuesta)
-
-
+        mb.showinfo("Información", respuesta)
+        
 aplicacion = ScreenPay()

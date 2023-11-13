@@ -48,7 +48,6 @@ class Base:
                     id_servicio INTEGER,
                     usuario TEXT,
                     contraseña TEXT,
-                    pantallas_compradas INTEGER,
                     fecha_renovacion DATE,
                     suspendida INTEGER,
                     FOREIGN KEY (id_cliente) REFERENCES Cliente (id_cliente),
@@ -164,3 +163,24 @@ class Base:
             return cursor.fetchall()
         finally:
             conn.close()
+
+
+    def agrega_pantalla(self, datos):
+        # verificaciones
+        
+        conn = self.abrir()
+        cursor = conn.cursor()
+        cursor.execute(
+            """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
+            VALUES (?, ?, ?, ?, ?, ?) """,
+            datos
+        )
+
+        id_pantalla = cursor.lastrowid
+
+        conn.commit()
+        conn.close()
+        return id_pantalla
+    
+
+
