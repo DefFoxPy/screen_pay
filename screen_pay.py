@@ -296,15 +296,15 @@ class ScreenPay:
         self.entryid_cliente_gestion = tk.Entry(
             self.labelframe7, textvariable=self.id_cliente_gestion
         )
-        self.entryid_cliente_gestion.grid(column=1, row=0, padx=4, pady=4)
+        self.entryid_cliente_gestion.grid(column=0, row=1, padx=4, pady=4)
 
         self.boton1 = ttk.Button(
             self.labelframe7, text="Buscar", command=self.obtener_pantallas
         )
-        self.boton1.grid(column=1, row=1, padx=4, pady=4)
+        self.boton1.grid(column=0, row=2, padx=4, pady=4)
 
         self.scrolledtext3 = st.ScrolledText(self.labelframe7, width=30, height=7)
-        self.scrolledtext3.grid(column=1, row=2, padx=10, pady=10)
+        self.scrolledtext3.grid(column=0, row=3, padx=10, pady=10)
 
         self.labelframe8 = ttk.LabelFrame(self.pagina6, text="Estado")
         self.labelframe8.grid(column=1, row=0, padx=4, pady=4)
@@ -313,17 +313,42 @@ class ScreenPay:
             text="Mostrar Pantallas Suspendidas",
             command=self.actualizar_estado,
         )
-        self.boton1.grid(column=1, row=1, padx=4, pady=4)
+        self.boton1.grid(column=0, row=1, padx=4, pady=4)
 
         self.scrolledtext4 = st.ScrolledText(self.labelframe8, width=30, height=7)
-        self.scrolledtext4.grid(column=1, row=2, padx=10, pady=10)
+        self.scrolledtext4.grid(column=0, row=2, padx=10, pady=10)
+
+        self.labelframe9 = ttk.LabelFrame(self.pagina6, text="Pagos")
+        self.labelframe9.grid(column=2, row=0, padx=4, pady=4)
+
+        self.label1 = ttk.Label(self.labelframe9, text="ID Pantalla a renovar:")
+        self.label1.grid(column=0, row=0, padx=4, pady=4)
+        self.id_pantalla_gestion = tk.StringVar()
+        self.entryid_pantalla_gestion = tk.Entry(
+            self.labelframe9, textvariable=self.id_pantalla_gestion
+        )
+        self.entryid_pantalla_gestion.grid(column=0, row=1, padx=4, pady=4)
+
+        self.boton1 = ttk.Button(
+            self.labelframe9,
+            text="Renovar",
+            command=self.renovar_pantalla,
+        )
+        self.boton1.grid(column=0, row=2, padx=4, pady=4)
+
+        self.scrolledtext5 = st.ScrolledText(self.labelframe9, width=20, height=7)
+        self.scrolledtext5.grid(column=0, row=3, padx=10, pady=10)
 
     def obtener_pantallas(self):
         datos = self.id_cliente_gestion.get()
         respuesta = self.base.recuperar_pantallas(datos)
         self.scrolledtext3.delete("1.0", tk.END)
         if len(respuesta) == 0:
-            self.scrolledtext3.insert(tk.END, "Sin pantallas registradas")
+            mb.showinfo(
+                "Informacion",
+                f"El cliente número {datos} no tiene pantallas afiliadas",
+            )
+            
         for fila in respuesta:
             estado = "suspendida"
             if int(fila[6]) == 0:
@@ -373,5 +398,9 @@ class ScreenPay:
                 + "\n\n",
             )
 
+    def renovar_pantalla(self):
+        datos = (self.id_pantalla_gestion.get())
+        respuesta = self.base.renovar_pantalla(datos)
+        mb.showinfo("Información", respuesta)
 
 aplicacion = ScreenPay()

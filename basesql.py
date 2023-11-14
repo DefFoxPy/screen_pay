@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Base:
@@ -269,6 +269,38 @@ class Base:
             conn.commit()
             cursor.execute(""" SELECT * FROM Pantallas WHERE suspendida = 1""")
             return cursor.fetchall()
+
+        finally:
+            conn.close()
+
+    def renovar_pantalla(self, datos):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """,
+                datos
+            )
+            pantalla = cursor.fetchall()
+            if pantalla == []:
+                return "No hay ninguna pantalla con esa ID"
+            fecha_hoy = datetime.today()
+            fecha_renovacion = datetime.strptime(pantalla[0][5], "%m/%d/%y")
+            if fecha_hoy > fecha_renovacion:
+                fecha_renovacion +=  timedelta(days=30)
+                fecha_renovacion = fecha_renovacion.strftime("%m/%d/%y")
+                cursor.execute(
+                        """ UPDATE Pantallas SET suspendida = 0, fecha_renovacion = ?  WHERE id_pantalla = ? """,
+                        (fecha_renovacion, pantalla[0][0]),
+                    )
+                conn.commit()
+                cursor.execute(""" SELECT * FROM Servicios WHERE id_servicio = ?""",
+                    (pantalla[0][2], )
+                    )
+                servicio = cursor.fetchall()
+                costo = servicio[0][2]
+                return f"pantalla renovada, se debe pagar {costo}$ y su nueva fecha es para el {fecha_renovacion}" 
+            else:
+                return "No es necesario renovar la pantalla"
 
         finally:
             conn.close()
