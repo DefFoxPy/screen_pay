@@ -84,7 +84,7 @@ class Base:
             conn.commit()
 
     def verifica_campos(self, datos):
-        if type (datos) == tuple:
+        if type(datos) == tuple:
             for dato in datos:
                 if len(dato) == 0:
                     return False
@@ -134,7 +134,6 @@ class Base:
             conn.close()
 
     def modifica_cliente(self, datos):
-        
         if not self.verifica_campos(datos):
             return f"No se permiten casillas vacias"
         try:
@@ -153,7 +152,6 @@ class Base:
             conn.close()
 
     def elimina_cliente(self, datos):
-        
         if not self.verifica_campos(datos):
             return "No se permiten campos en blanco"
 
@@ -172,7 +170,6 @@ class Base:
             conn.close()
 
     def modifica_plataforma(self, datos):
-
         if not self.verifica_campos(datos):
             return "No se permiten campos en blanco"
 
@@ -216,7 +213,6 @@ class Base:
             conn.close()
 
     def agrega_pantalla(self, datos):
-
         if not self.verifica_campos(datos):
             return f"No se permiten campos en blanco"
 
@@ -272,7 +268,6 @@ class Base:
             conn.close()
 
     def recuperar_pantallas(self, datos):
-
         if not self.verifica_campos(datos):
             return ([], f"No se permiten campos en blanco")
 
@@ -338,7 +333,6 @@ class Base:
             conn.close()
 
     def consultar_pantalla(self, datos):
-
         if not self.verifica_campos(datos):
             return ([], f"No se permiten espacios en blanco")
 
@@ -363,7 +357,6 @@ class Base:
             conn.close()
 
     def renovar_pantalla(self, datos):
-
         if not self.verifica_campos(datos):
             return "No se permiten campos vacios"
 
@@ -398,7 +391,6 @@ class Base:
             conn.close()
 
     def eliminar_pantalla(self, datos):
-
         if not self.verifica_campos(datos):
             return "No se permiten campos vacios"
 
