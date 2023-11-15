@@ -347,17 +347,24 @@ class ScreenPay:
 
         self.boton1 = ttk.Button(
             self.labelframe9,
-            text="Renovar",
-            command=self.renovar_pantalla,
+            text="Consultar",
+            command=self.consultar_pantalla,
         )
         self.boton1.grid(column=0, row=2, padx=4, pady=4)
 
         self.boton2 = ttk.Button(
             self.labelframe9,
+            text="Renovar",
+            command=self.renovar_pantalla,
+        )
+        self.boton2.grid(column=0, row=3, padx=4, pady=4)
+
+        self.boton3 = ttk.Button(
+            self.labelframe9,
             text="Eliminar",
             command=self.eliminar_pantalla,
         )
-        self.boton2.grid(column=0, row=3, padx=4, pady=4)
+        self.boton3.grid(column=0, row=4, padx=4, pady=4)
 
     def mostrar_pantalla(self, pantallas, scrolledtext):
         for fila in pantallas:
@@ -387,7 +394,7 @@ class ScreenPay:
 
     def obtener_pantallas(self):
         datos = self.id_cliente_gestion.get()
-        respuesta = self.base.recuperar_pantallas(datos)
+        respuesta, total = self.base.recuperar_pantallas(datos)
         self.scrolledtext3.delete("1.0", tk.END)
         if len(respuesta) == 0:
             mb.showinfo(
@@ -396,6 +403,10 @@ class ScreenPay:
             )
         else:
             self.mostrar_pantalla(respuesta, self.scrolledtext3)
+            self.scrolledtext3.insert(
+                tk.END,
+                f"Precio total por las pantallas: {total}$"
+                )
 
     def mostrar_vencidas(self):
         respuesta = self.base.recuperar_vencidos()
@@ -412,6 +423,11 @@ class ScreenPay:
             mb.showinfo("Información", "No hay pantallas para mostrar")
         else:
             self.mostrar_pantalla(respuesta, self.scrolledtext4)
+
+    def consultar_pantalla(self):
+        datos = self.id_pantalla_gestion.get()
+        respuesta = self.base.consultar_pantalla(datos)
+        mb.showinfo("Información", respuesta)
 
     def renovar_pantalla(self):
         datos = self.id_pantalla_gestion.get()

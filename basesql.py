@@ -241,7 +241,15 @@ class Base:
                 """ SELECT id_pantalla, id_cliente, id_servicio, usuario, contraseña, correo, fecha_renovacion, suspendida FROM Pantallas WHERE id_cliente = ?""",
                 datos,
             )
-            return cursor.fetchall()
+            pantallas = cursor.fetchall()
+
+            total = 0
+            for pantalla in pantallas:
+                cursor.execute(""" SELECT precio FROM Servicios WHERE id_servicio = ? """, (pantalla[2], ))
+                precio = cursor.fetchall()
+                total += precio[0][0]
+
+            return (pantallas, total)
         finally:
             conn.close()
 
@@ -281,6 +289,23 @@ class Base:
             cursor.execute(""" SELECT * FROM Pantallas""")
             return cursor.fetchall()
 
+        finally:
+            conn.close()
+
+    def consultar_pantalla(self, datos):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """,
+                datos
+            )
+            pantalla = cursor.fetchall()
+            if pantalla == []:
+                return "No hay ninguna pantalla con esa ID"
+            else:
+                cursor.execute(""" SELECT precio FROM Servicios WHERE id_servicio = ? """, (pantalla[0][2], ))
+                precio = cursor.fetchall()
+                return f"la pantalla con id {pantalla[0][0]} tiene un precio de {precio[0][0]}$"
         finally:
             conn.close()
 
