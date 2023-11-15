@@ -51,7 +51,7 @@ class ScreenPay:
 
     def agregar(self):
         fecha_hoy = datetime.date.today()
-        datos = (self.nombreagregar.get(), self.correoagregar.get(), fecha_hoy) 
+        datos = (self.nombreagregar.get(), self.correoagregar.get(), fecha_hoy)
         respuesta = self.base.alta(datos)
         mb.showinfo("Información", respuesta)
         self.nombreagregar.set("")
@@ -102,7 +102,7 @@ class ScreenPay:
         self.scrolledtext1.grid(column=0, row=1, padx=10, pady=10)
 
     def consultar(self):
-        datos = (self.idmod.get(),)
+        datos = self.idmod.get()
         respuesta = self.base.consulta(datos)
         if len(respuesta) > 0:
             self.nombremod.set(respuesta[0][0])
@@ -116,11 +116,17 @@ class ScreenPay:
         datos = (self.nombremod.get(), self.correomod.get(), self.idmod.get())
         respuesta = self.base.modifica_cliente(datos)
         mb.showinfo("Información", respuesta)
+        self.idmod.set("")
+        self.correomod.set("")
+        self.nombremod.set("")
 
     def elimina_cliente(self):
         datos = self.idmod.get()
         respuesta = self.base.elimina_cliente(datos)
         mb.showinfo("Información", respuesta)
+        self.idmod.set("")
+        self.correomod.set("")
+        self.nombremod.set("")
 
     def listar_clientes(self):
         respuesta = self.base.recuperar_clientes()
@@ -185,17 +191,14 @@ class ScreenPay:
             )
 
     def modifica_plataforma(self):
+        if len(self.precio_plat.get()) == 0 or len(self.id_plat.get()) == 0:
+            mb.showinfo("Información", "No se permiten espacios en blanco")
+            return
         datos = (float(self.precio_plat.get()), self.id_plat.get())
         respuesta = self.base.modifica_plataforma(datos)
-        if respuesta == 1:
-            mb.showinfo(
-                "Información",
-                f"Se modificó el precio de la plataforma con id: {datos[1]}",
-            )
-        else:
-            mb.showinfo(
-                "Información", f"No existe una plataforma con la id: {datos[1]}"
-            )
+        mb.showinfo("Informacion", respuesta)
+        self.id_plat.set("")
+        self.precio_plat.set("")
 
     def agregar_pantalla(self):
         self.pagina5 = ttk.Frame(self.cuaderno)
@@ -282,6 +285,12 @@ class ScreenPay:
         )
         respuesta = self.base.agrega_pantalla(datos)
         mb.showinfo("Información", respuesta)
+        self.id_cliente_agregar.set("")
+        self.id_servicio_agregar.set("")
+        self.usuario_agregar.set("")
+        self.contrasenia_agregar.set("")
+        self.correo_agregar.set("")
+        self.renovacion.set("")
 
     def gestion_pantallas(self):
         self.pagina6 = ttk.Frame(self.cuaderno)
@@ -394,9 +403,8 @@ class ScreenPay:
         else:
             self.mostrar_pantalla(respuesta, self.scrolledtext3)
             self.scrolledtext3.insert(
-                tk.END,
-                f"Precio total por las pantallas: {total}$"
-                )
+                tk.END, f"Precio total por las pantallas: {total}$"
+            )
 
     def mostrar_vencidas(self):
         respuesta = self.base.recuperar_vencidos()
@@ -420,17 +428,20 @@ class ScreenPay:
         if not respuesta == []:
             self.scrolledtext4.delete("1.0", tk.END)
             self.mostrar_pantalla(respuesta, self.scrolledtext4)
-            mb.showinfo("Información", mensaje)
+        mb.showinfo("Información", mensaje)
+        self.id_pantalla_gestion.set("")
 
     def renovar_pantalla(self):
         datos = self.id_pantalla_gestion.get()
         respuesta = self.base.renovar_pantalla(datos)
         mb.showinfo("Información", respuesta)
+        self.id_pantalla_gestion.set("")
 
     def eliminar_pantalla(self):
         datos = self.id_pantalla_gestion.get()
         respuesta = self.base.eliminar_pantalla(datos)
         mb.showinfo("Información", respuesta)
+        self.id_pantalla_gestion.set("")
 
 
 aplicacion = ScreenPay()

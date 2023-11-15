@@ -83,9 +83,21 @@ class Base:
             )
             conn.commit()
 
+    def verifica_campos(self, datos):
+        if type (datos) == tuple:
+            for dato in datos:
+                if len(dato) == 0:
+                    return False
+            return True
+
+        return not (len(datos) == 0)
+
     def alta(self, datos):
         conn = self.abrir()
         cursor = conn.cursor()
+
+        if not self.verifica_campos(datos):
+            return f"No se permiten casillas vacias"
 
         cursor.execute(
             """SELECT id_cliente FROM Cliente WHERE correo = ? """, (datos[1],)
@@ -108,6 +120,9 @@ class Base:
         return f"se ha agregado el nuevo cliente y su id es: {id_cliente}"
 
     def consulta(self, datos):
+        if not self.verifica_campos(datos):
+            return []
+
         try:
             conn = self.abrir()
             cursor = conn.cursor()
@@ -119,6 +134,9 @@ class Base:
             conn.close()
 
     def modifica_cliente(self, datos):
+        
+        if not self.verifica_campos(datos):
+            return f"No se permiten casillas vacias"
         try:
             conn = self.abrir()
             cursor = conn.cursor()
@@ -135,18 +153,29 @@ class Base:
             conn.close()
 
     def elimina_cliente(self, datos):
-        conn = self.abrir()
-        cursor = conn.cursor()
-        cursor.execute("""PRAGMA foreign_keys = ON""")
-        cursor.execute(""" DELETE FROM Cliente WHERE id_cliente = ? """, datos)
-        conn.commit()
-        conn.close()
-        if cursor.rowcount > 0:
-            return "El cliente ha sido eliminado"
-        else:
-            return "No se pudo eliminar al cliente"
+        
+        if not self.verifica_campos(datos):
+            return "No se permiten campos en blanco"
+
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute("""PRAGMA foreign_keys = ON""")
+            cursor.execute(""" DELETE FROM Cliente WHERE id_cliente = ? """, datos)
+            conn.commit()
+            conn.close()
+            if cursor.rowcount > 0:
+                return "El cliente ha sido eliminado"
+            else:
+                return "No se pudo eliminar al cliente"
+        finally:
+            conn.close()
 
     def modifica_plataforma(self, datos):
+
+        if not self.verifica_campos(datos):
+            return "No se permiten campos en blanco"
+
         if datos[0] < 0.0:
             precio = 0
         else:
@@ -159,7 +188,10 @@ class Base:
                 (precio, datos[1]),
             )
             conn.commit()
-            return cursor.rowcount
+            if cursor.rowcount == 1:
+                return f"Se modificó el precio de la plataforma {datos[1]}, su nuevo precio es {precio}"
+            else:
+                return f"No se pudo modificar el precio de la plataforma con id: {datos[1]}"
         except:
             conn.close()
 
@@ -184,6 +216,10 @@ class Base:
             conn.close()
 
     def agrega_pantalla(self, datos):
+
+        if not self.verifica_campos(datos):
+            return f"No se permiten campos en blanco"
+
         try:
             conn = self.abrir()
             cursor = conn.cursor()
@@ -202,9 +238,6 @@ class Base:
             if not resultado:
                 return "No existe un Servicio con esa id o fue eliminado"
 
-            if len(datos[2]) == 0 or len(datos[3]) == 0 or len(datos[4]) == 0:
-                return "No pueden ver campos vacios"
-
             cursor.execute(
                 """ SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],)
             )
@@ -220,7 +253,15 @@ class Base:
             cursor.execute(
                 """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña, correo,  fecha_renovacion, suspendida) 
                 VALUES (?, ?, ?, ?, ?, ?, ?) """,
-                (datos[0], datos[1], datos[2], datos[3], datos[4], datos[5], suspendida),
+                (
+                    datos[0],
+                    datos[1],
+                    datos[2],
+                    datos[3],
+                    datos[4],
+                    datos[5],
+                    suspendida,
+                ),
             )
 
             id_pantalla = cursor.lastrowid
@@ -231,6 +272,10 @@ class Base:
             conn.close()
 
     def recuperar_pantallas(self, datos):
+
+        if not self.verifica_campos(datos):
+            return ([], f"No se permiten campos en blanco")
+
         try:
             conn = self.abrir()
             cursor = conn.cursor()
@@ -242,7 +287,10 @@ class Base:
 
             total = 0
             for pantalla in pantallas:
-                cursor.execute(""" SELECT precio FROM Servicios WHERE id_servicio = ? """, (pantalla[2], ))
+                cursor.execute(
+                    """ SELECT precio FROM Servicios WHERE id_servicio = ? """,
+                    (pantalla[2],),
+                )
                 precio = cursor.fetchall()
                 total += precio[0][0]
 
@@ -290,48 +338,59 @@ class Base:
             conn.close()
 
     def consultar_pantalla(self, datos):
+
+        if not self.verifica_campos(datos):
+            return ([], f"No se permiten espacios en blanco")
+
         try:
             conn = self.abrir()
             cursor = conn.cursor()
-            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """,
-                datos
-            )
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """, datos)
             pantalla = cursor.fetchall()
             if pantalla == []:
                 return (pantalla, "No hay ninguna pantalla con esa ID")
             else:
-                cursor.execute(""" SELECT precio FROM Servicios WHERE id_servicio = ? """, (pantalla[0][2], ))
+                cursor.execute(
+                    """ SELECT precio FROM Servicios WHERE id_servicio = ? """,
+                    (pantalla[0][2],),
+                )
                 precio = cursor.fetchall()
-                return (pantalla, f"la pantalla con id {pantalla[0][0]} tiene un precio de {precio[0][0]}$")
+                return (
+                    pantalla,
+                    f"la pantalla con id {pantalla[0][0]} tiene un precio de {precio[0][0]}$",
+                )
         finally:
             conn.close()
 
     def renovar_pantalla(self, datos):
+
+        if not self.verifica_campos(datos):
+            return "No se permiten campos vacios"
+
         try:
             conn = self.abrir()
             cursor = conn.cursor()
-            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """,
-                datos
-            )
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """, datos)
             pantalla = cursor.fetchall()
             if pantalla == []:
                 return "No hay ninguna pantalla con esa ID"
             fecha_hoy = datetime.today()
             fecha_renovacion = datetime.strptime(pantalla[0][6], "%m/%d/%y")
             if fecha_hoy > fecha_renovacion:
-                fecha_renovacion +=  timedelta(days=30)
+                fecha_renovacion += timedelta(days=30)
                 fecha_renovacion = fecha_renovacion.strftime("%m/%d/%y")
                 cursor.execute(
-                        """ UPDATE Pantallas SET suspendida = 0, fecha_renovacion = ?  WHERE id_pantalla = ? """,
-                        (fecha_renovacion, pantalla[0][0]),
-                    )
+                    """ UPDATE Pantallas SET suspendida = 0, fecha_renovacion = ?  WHERE id_pantalla = ? """,
+                    (fecha_renovacion, pantalla[0][0]),
+                )
                 conn.commit()
-                cursor.execute(""" SELECT * FROM Servicios WHERE id_servicio = ?""",
-                    (pantalla[0][2], )
-                    )
+                cursor.execute(
+                    """ SELECT * FROM Servicios WHERE id_servicio = ?""",
+                    (pantalla[0][2],),
+                )
                 servicio = cursor.fetchall()
                 costo = servicio[0][2]
-                return f"pantalla renovada, se debe pagar {costo}$ y su nueva fecha es para el {fecha_renovacion}" 
+                return f"pantalla renovada, se debe pagar {costo}$ y su nueva fecha es para el {fecha_renovacion}"
             else:
                 return "No es necesario renovar la pantalla"
 
@@ -339,25 +398,25 @@ class Base:
             conn.close()
 
     def eliminar_pantalla(self, datos):
+
+        if not self.verifica_campos(datos):
+            return "No se permiten campos vacios"
+
         try:
             conn = self.abrir()
             cursor = conn.cursor()
-            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ?""", 
-                datos
-            )
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ?""", datos)
             pantalla = cursor.fetchall()
             if pantalla == []:
                 return "No hay ninguna pantalla con esa ID"
-            
-            cursor.execute(""" DELETE FROM Pantallas WHERE id_pantalla = ? """, 
-                datos
-            )
+
+            cursor.execute(""" DELETE FROM Pantallas WHERE id_pantalla = ? """, datos)
             conn.commit()
             conn.close()
             if cursor.rowcount > 0:
                 return f"La pantalla con ID {datos} ha sido eliminado"
             else:
                 return f"No se pudo eliminar la pantalla con ID {datos}"
-        
+
         finally:
             conn.close()
