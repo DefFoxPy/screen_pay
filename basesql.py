@@ -86,6 +86,7 @@ class Base:
     def verifica_campos(self, datos):
         if type(datos) == tuple:
             for dato in datos:
+               
                 if len(dato) == 0:
                     return False
             return True
@@ -96,7 +97,7 @@ class Base:
         conn = self.abrir()
         cursor = conn.cursor()
 
-        if not self.verifica_campos(datos):
+        if not self.verifica_campos(datos[:1]):
             return f"No se permiten casillas vacias"
 
         cursor.execute(
@@ -173,10 +174,10 @@ class Base:
         if not self.verifica_campos(datos):
             return "No se permiten campos en blanco"
 
-        if datos[0] < 0.0:
+        if float(datos[0]) < 0.0:
             precio = 0
         else:
-            precio = datos[0]
+            precio = float(datos[0])
         try:
             conn = self.abrir()
             cursor = conn.cursor()
@@ -339,20 +340,22 @@ class Base:
         try:
             conn = self.abrir()
             cursor = conn.cursor()
-            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """, datos)
+
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ? """,
+                datos
+            )
             pantalla = cursor.fetchall()
             if pantalla == []:
-                return (pantalla, "No hay ninguna pantalla con esa ID")
-            else:
-                cursor.execute(
-                    """ SELECT precio FROM Servicios WHERE id_servicio = ? """,
-                    (pantalla[0][2],),
-                )
-                precio = cursor.fetchall()
-                return (
-                    pantalla,
-                    f"la pantalla con id {pantalla[0][0]} tiene un precio de {precio[0][0]}$",
-                )
+                return (pantalla, f"la pantalla con id {datos} no existe")
+
+            cursor.execute("""SELECT Servicios.precio FROM Pantallas JOIN Servicios ON 
+            Pantallas.id_servicio = Servicios.id_servicio WHERE id_pantalla = ?""",
+                datos
+            )
+            precio = cursor.fetchone()[0]
+
+            return (pantalla, f"El precio de la pantalla {datos} es {precio}$")
+            
         finally:
             conn.close()
 

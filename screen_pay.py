@@ -194,7 +194,7 @@ class ScreenPay:
         if len(self.precio_plat.get()) == 0 or len(self.id_plat.get()) == 0:
             mb.showinfo("Información", "No se permiten espacios en blanco")
             return
-        datos = (float(self.precio_plat.get()), self.id_plat.get())
+        datos = (self.precio_plat.get(), self.id_plat.get())
         respuesta = self.base.modifica_plataforma(datos)
         mb.showinfo("Informacion", respuesta)
         self.id_plat.set("")
