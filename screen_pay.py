@@ -245,6 +245,14 @@ class ScreenPay:
         )
         self.entrycontrasenia_agregar.grid(column=1, row=3, padx=4, pady=4)
 
+        self.label5 = ttk.Label(self.labelframe5, text="Correo:")
+        self.label5.grid(column=0, row=4, padx=4, pady=4)
+        self.correo_agregar = tk.StringVar()
+        self.entrycorreo_agregar = ttk.Entry(
+            self.labelframe5, textvariable=self.correo_agregar
+        )
+        self.entrycorreo_agregar.grid(column=1, row=4, padx=4, pady=4)
+
         self.label6 = ttk.Label(self.labelframe5, text="Renovacion")
         self.label6.grid(column=0, row=5, padx=4, pady=4)
         self.renovacion = tk.StringVar()
@@ -279,6 +287,7 @@ class ScreenPay:
             self.id_servicio_agregar.get(),
             self.usuario_agregar.get(),
             self.contrasenia_agregar.get(),
+            self.correo_agregar.get(),
             self.renovacion.get(),
         )
         respuesta = self.base.agrega_pantalla(datos)
@@ -290,7 +299,7 @@ class ScreenPay:
         self.labelframe7 = ttk.LabelFrame(self.pagina6, text="Cliente")
         self.labelframe7.grid(column=0, row=0, padx=4, pady=4)
 
-        self.label1 = ttk.Label(self.labelframe7, text="ID:")
+        self.label1 = ttk.Label(self.labelframe7, text="ID Cliente")
         self.label1.grid(column=0, row=0, padx=4, pady=4)
         self.id_cliente_gestion = tk.StringVar()
         self.entryid_cliente_gestion = tk.Entry(
@@ -311,17 +320,24 @@ class ScreenPay:
         self.boton1 = ttk.Button(
             self.labelframe8,
             text="Mostrar Pantallas Suspendidas",
-            command=self.actualizar_estado,
+            command=self.mostrar_vencidas,
         )
         self.boton1.grid(column=0, row=1, padx=4, pady=4)
 
+        self.boton2 = ttk.Button(
+            self.labelframe8,
+            text="Mostrar todas las Pantallas",
+            command=self.mostrar_todas_pantallas,
+        )
+        self.boton2.grid(column=0, row=2, padx=4, pady=4)
+
         self.scrolledtext4 = st.ScrolledText(self.labelframe8, width=30, height=7)
-        self.scrolledtext4.grid(column=0, row=2, padx=10, pady=10)
+        self.scrolledtext4.grid(column=0, row=3, padx=10, pady=10)
 
         self.labelframe9 = ttk.LabelFrame(self.pagina6, text="Pagos")
         self.labelframe9.grid(column=2, row=0, padx=4, pady=4)
 
-        self.label1 = ttk.Label(self.labelframe9, text="ID Pantalla a renovar:")
+        self.label1 = ttk.Label(self.labelframe9, text="ID Pantalla:")
         self.label1.grid(column=0, row=0, padx=4, pady=4)
         self.id_pantalla_gestion = tk.StringVar()
         self.entryid_pantalla_gestion = tk.Entry(
@@ -336,8 +352,38 @@ class ScreenPay:
         )
         self.boton1.grid(column=0, row=2, padx=4, pady=4)
 
-        self.scrolledtext5 = st.ScrolledText(self.labelframe9, width=20, height=7)
-        self.scrolledtext5.grid(column=0, row=3, padx=10, pady=10)
+        self.boton2 = ttk.Button(
+            self.labelframe9,
+            text="Eliminar",
+            command=self.eliminar_pantalla,
+        )
+        self.boton2.grid(column=0, row=3, padx=4, pady=4)
+
+    def mostrar_pantalla(self, pantallas, scrolledtext):
+        for fila in pantallas:
+            estado = "suspendida"
+            if int(fila[7]) == 0:
+                estado = "renovada"
+            scrolledtext.insert(
+                tk.END,
+                "ID pantalla:"
+                + str(fila[0])
+                + "\nID Cliente:"
+                + str(fila[1])
+                + "\nID servicio:"
+                + str(fila[2])
+                + "\nUsuario:"
+                + fila[3]
+                + "\nContraseña:"
+                + fila[4]
+                + "\nCorreo:"
+                + fila[5]
+                + "\nFecha_renonvacion:"
+                + fila[6]
+                + "\nEstado:"
+                + f"{estado}"
+                + "\n\n",
+            )
 
     def obtener_pantallas(self):
         datos = self.id_cliente_gestion.get()
@@ -348,59 +394,34 @@ class ScreenPay:
                 "Informacion",
                 f"El cliente número {datos} no tiene pantallas afiliadas",
             )
-            
-        for fila in respuesta:
-            estado = "suspendida"
-            if int(fila[6]) == 0:
-                estado = "renovada"
-            self.scrolledtext3.insert(
-                tk.END,
-                "ID pantalla:"
-                + str(fila[0])
-                + "\nID Cliente:"
-                + str(fila[1])
-                + "\nID servicio:"
-                + str(fila[2])
-                + "\nUsuario:"
-                + fila[3]
-                + "\nContraseña:"
-                + fila[4]
-                + "\nFecha_renonvacion:"
-                + fila[5]
-                + "\nEstado:"
-                + f"{estado}"
-                + "\n\n",
-            )
+        else:
+            self.mostrar_pantalla(respuesta, self.scrolledtext3)
 
-    def actualizar_estado(self):
+    def mostrar_vencidas(self):
         respuesta = self.base.recuperar_vencidos()
         self.scrolledtext4.delete("1.0", tk.END)
-        for fila in respuesta:
-            estado = "suspendida"
-            if int(fila[6]) == 0:
-                estado = "renovada"
-            self.scrolledtext4.insert(
-                tk.END,
-                "ID pantalla:"
-                + str(fila[0])
-                + "\nID Cliente:"
-                + str(fila[1])
-                + "\nID servicio:"
-                + str(fila[2])
-                + "\nUsuario:"
-                + fila[3]
-                + "\nContraseña:"
-                + fila[4]
-                + "\nFecha_renonvacion:"
-                + fila[5]
-                + "\nEstado:"
-                + f"{estado}"
-                + "\n\n",
-            )
+        if respuesta == []:
+            mb.showinfo("Información", "No hay pantallas suspendidas para mostrar")
+        else:
+            self.mostrar_pantalla(respuesta, self.scrolledtext4)
+
+    def mostrar_todas_pantallas(self):
+        respuesta = self.base.mostrar_todas_pantallas()
+        self.scrolledtext4.delete("1.0", tk.END)
+        if respuesta == []:
+            mb.showinfo("Información", "No hay pantallas para mostrar")
+        else:
+            self.mostrar_pantalla(respuesta, self.scrolledtext4)
 
     def renovar_pantalla(self):
-        datos = (self.id_pantalla_gestion.get())
+        datos = self.id_pantalla_gestion.get()
         respuesta = self.base.renovar_pantalla(datos)
         mb.showinfo("Información", respuesta)
+
+    def eliminar_pantalla(self):
+        datos = self.id_pantalla_gestion.get()
+        respuesta = self.base.eliminar_pantalla(datos)
+        mb.showinfo("Información", respuesta)
+
 
 aplicacion = ScreenPay()

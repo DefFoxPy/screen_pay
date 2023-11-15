@@ -49,6 +49,7 @@ class Base:
                     id_servicio INTEGER,
                     usuario TEXT,
                     contraseña TEXT,
+                    correo TEXT,
                     fecha_renovacion DATE,
                     suspendida INTEGER,
                     FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente) ON DELETE CASCADE,
@@ -204,8 +205,8 @@ class Base:
             if not resultado:
                 return "No existe un Servicio con esa id o fue eliminado"
 
-            if len(datos[2]) == 0 or len(datos[3]) == 0:
-                return "El campo usuario y contraseña no pueden estar vacios"
+            if len(datos[2]) == 0 or len(datos[3]) == 0 or len(datos[4]) == 0:
+                return "No pueden ver campos vacios"
 
             cursor.execute(
                 """ SELECT * FROM Pantallas WHERE usuario = ? """, (datos[2],)
@@ -216,13 +217,13 @@ class Base:
 
             fecha_hoy = datetime.today()
             suspendida = 0
-            if fecha_hoy > datetime.strptime(datos[4], "%m/%d/%y"):
+            if fecha_hoy > datetime.strptime(datos[5], "%m/%d/%y"):
                 suspendida = 1
 
             cursor.execute(
-                """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña,  fecha_renovacion, suspendida) 
-                VALUES (?, ?, ?, ?, ?, ?) """,
-                (datos[0], datos[1], datos[2], datos[3], datos[4], suspendida),
+                """ INSERT INTO Pantallas (id_cliente, id_servicio, usuario, contraseña, correo,  fecha_renovacion, suspendida) 
+                VALUES (?, ?, ?, ?, ?, ?, ?) """,
+                (datos[0], datos[1], datos[2], datos[3], datos[4], datos[5], suspendida),
             )
 
             id_pantalla = cursor.lastrowid
@@ -237,7 +238,7 @@ class Base:
             conn = self.abrir()
             cursor = conn.cursor()
             cursor.execute(
-                """ SELECT id_pantalla, id_cliente, id_servicio, usuario, contraseña, fecha_renovacion, suspendida FROM Pantallas WHERE id_cliente = ?""",
+                """ SELECT id_pantalla, id_cliente, id_servicio, usuario, contraseña, correo, fecha_renovacion, suspendida FROM Pantallas WHERE id_cliente = ?""",
                 datos,
             )
             return cursor.fetchall()
@@ -254,7 +255,7 @@ class Base:
             fecha_hoy = datetime.today()
 
             for pantalla in pantallas:
-                fecha_renovacion = datetime.strptime(pantalla[5], "%m/%d/%y")
+                fecha_renovacion = datetime.strptime(pantalla[6], "%m/%d/%y")
                 if fecha_hoy > fecha_renovacion:
                     cursor.execute(
                         """ UPDATE Pantallas SET suspendida = 1 WHERE id_pantalla = ? """,
@@ -273,6 +274,16 @@ class Base:
         finally:
             conn.close()
 
+    def mostrar_todas_pantallas(self):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT * FROM Pantallas""")
+            return cursor.fetchall()
+
+        finally:
+            conn.close()
+
     def renovar_pantalla(self, datos):
         try:
             conn = self.abrir()
@@ -284,7 +295,7 @@ class Base:
             if pantalla == []:
                 return "No hay ninguna pantalla con esa ID"
             fecha_hoy = datetime.today()
-            fecha_renovacion = datetime.strptime(pantalla[0][5], "%m/%d/%y")
+            fecha_renovacion = datetime.strptime(pantalla[0][6], "%m/%d/%y")
             if fecha_hoy > fecha_renovacion:
                 fecha_renovacion +=  timedelta(days=30)
                 fecha_renovacion = fecha_renovacion.strftime("%m/%d/%y")
@@ -302,5 +313,29 @@ class Base:
             else:
                 return "No es necesario renovar la pantalla"
 
+        finally:
+            conn.close()
+
+    def eliminar_pantalla(self, datos):
+        try:
+            conn = self.abrir()
+            cursor = conn.cursor()
+            cursor.execute(""" SELECT * FROM Pantallas WHERE id_pantalla = ?""", 
+                datos
+            )
+            pantalla = cursor.fetchall()
+            if pantalla == []:
+                return "No hay ninguna pantalla con esa ID"
+            
+            cursor.execute(""" DELETE FROM Pantallas WHERE id_pantalla = ? """, 
+                datos
+            )
+            conn.commit()
+            conn.close()
+            if cursor.rowcount > 0:
+                return f"La pantalla con ID {datos} ha sido eliminado"
+            else:
+                return f"No se pudo eliminar la pantalla con ID {datos}"
+        
         finally:
             conn.close()
