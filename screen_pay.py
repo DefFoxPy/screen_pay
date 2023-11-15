@@ -426,8 +426,11 @@ class ScreenPay:
 
     def consultar_pantalla(self):
         datos = self.id_pantalla_gestion.get()
-        respuesta = self.base.consultar_pantalla(datos)
-        mb.showinfo("Información", respuesta)
+        respuesta, mensaje = self.base.consultar_pantalla(datos)
+        if not respuesta == []:
+            self.scrolledtext4.delete("1.0", tk.END)
+            self.mostrar_pantalla(respuesta, self.scrolledtext4)
+            mb.showinfo("Información", mensaje)
 
     def renovar_pantalla(self):
         datos = self.id_pantalla_gestion.get()

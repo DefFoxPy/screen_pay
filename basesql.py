@@ -301,11 +301,11 @@ class Base:
             )
             pantalla = cursor.fetchall()
             if pantalla == []:
-                return "No hay ninguna pantalla con esa ID"
+                return (pantalla, "No hay ninguna pantalla con esa ID")
             else:
                 cursor.execute(""" SELECT precio FROM Servicios WHERE id_servicio = ? """, (pantalla[0][2], ))
                 precio = cursor.fetchall()
-                return f"la pantalla con id {pantalla[0][0]} tiene un precio de {precio[0][0]}$"
+                return (pantalla, f"la pantalla con id {pantalla[0][0]} tiene un precio de {precio[0][0]}$")
         finally:
             conn.close()
 
