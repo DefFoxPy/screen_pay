@@ -87,16 +87,13 @@ class Base:
         conn = self.abrir()
         cursor = conn.cursor()
 
-        bandera = False
-
         cursor.execute(
             """SELECT id_cliente FROM Cliente WHERE correo = ? """, (datos[1],)
         )
         resultado = cursor.fetchone()
 
         if resultado:
-            bandera = True
-            return (resultado[0], bandera)
+            return f"ya existe un cliente con ese correo"
 
         cursor.execute(
             """INSERT INTO Cliente (nombre, correo, fecha_registro) VALUES (?, ?, ?)""",
@@ -108,7 +105,7 @@ class Base:
         conn.commit()
         conn.close()
 
-        return (id_cliente, bandera)
+        return f"se ha agregado el nuevo cliente y su id es: {id_cliente}"
 
     def consulta(self, datos):
         try:

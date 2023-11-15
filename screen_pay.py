@@ -51,19 +51,9 @@ class ScreenPay:
 
     def agregar(self):
         fecha_hoy = datetime.date.today()
-        datos = (self.nombreagregar.get(), self.correoagregar.get(), fecha_hoy)
-        respuesta, bandera = self.base.alta(datos)
-
-        if bandera:
-            mb.showinfo(
-                "Informacion",
-                f"Ya existe un cliente con ese correo y su id es:{respuesta}",
-            )
-        else:
-            mb.showinfo(
-                "Informacion",
-                f"Se ha agregado el cliente con éxito, su id es el:{respuesta}",
-            )
+        datos = (self.nombreagregar.get(), self.correoagregar.get(), fecha_hoy) 
+        respuesta = self.base.alta(datos)
+        mb.showinfo("Información", respuesta)
         self.nombreagregar.set("")
         self.correoagregar.set("")
 
@@ -385,7 +375,7 @@ class ScreenPay:
                 + fila[4]
                 + "\nCorreo:"
                 + fila[5]
-                + "\nFecha_renonvacion:"
+                + "\nFecha_renovacion:"
                 + fila[6]
                 + "\nEstado:"
                 + f"{estado}"
